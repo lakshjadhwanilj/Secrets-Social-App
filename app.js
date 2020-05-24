@@ -47,6 +47,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Connecting to mongoDB
+/*mongoose.connect('mongodb://localhost:27017/userDB', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+*/
 mongoose.connect('mongodb+srv://lakshjadhwani:test123@todo-4gxsr.mongodb.net/userDB', {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -66,7 +71,7 @@ const Secret = new mongoose.model("Secret", secretSchema);
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        sparse: true
+        unique: false
     },
     password: String,
     googleId: String,
@@ -108,14 +113,16 @@ passport.deserializeUser(function (id, done) {
 passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        // callbackURL: 'http://localhost:3000/auth/google/secrets',
+        callbackURL: 'http://localhost:3000/auth/google/secrets',
         callbackURL: 'https://lit-inlet-76032.herokuapp.com/auth/google/secrets',
-        userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
+        //userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
     },
     function (accessToken, refreshToken, profile, cb) {
         User.findOrCreate({
-            googleId: profile.id
+            googleId: profile.id,
+            username: profile.id,
         }, function (err, user) {
+
             return cb(err, user);
         });
     }
@@ -129,7 +136,8 @@ passport.use(new FacebookStrategy({
     },
     function (accessToken, refreshToken, profile, cb) {
         User.findOrCreate({
-            facebookId: profile.id
+            facebookId: profile.id,
+            username: profile.id
         }, function (err, user) {
             return cb(err, user);
         });
