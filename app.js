@@ -52,12 +52,20 @@ mongoose.connect('mongodb+srv://lakshjadhwani:test123@todo-4gxsr.mongodb.net/use
 
 mongoose.set('useCreateIndex', true);
 
+// Creating secret schema for multiple secrets
+const secretSchema = new mongoose.Schema({
+    content: String
+});
+
+// Creating secret model
+const Secret = new mongoose.model("Secret", secretSchema);
+
 // Creating mongoose schema
 const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     googleId: String,
-    secret: String
+    secret: [secretSchema]
 });
 
 // Adding passport local mongoose plugin
@@ -73,7 +81,7 @@ userSchema.plugin(encrypt, {
 });
 */
 
-// Creating mongoose model
+// Creating user model
 const User = new mongoose.model('User', userSchema);
 
 // use static authenticate method of model in LocalStrategy
@@ -134,7 +142,8 @@ app.get('/auth/google/secrets',
 app.get('/secrets', (req, res) => {
     User.find({
         'secret': {
-            $ne: null
+            $exists: true,
+            $ne: []
         }
     }, (err, foundUsers) => {
         if (err) {
@@ -159,12 +168,16 @@ app.get('/submit', (req, res) => {
 
 app.post('/submit', (req, res) => {
     const submittedSecret = req.body.secret;
+    const newSecret = new Secret({
+        content: submittedSecret
+    });
     User.findById(req.user.id, (err, foundUser) => {
         if (err) {
             console.log(err);
         } else {
             if (foundUser) {
-                foundUser.secret = submittedSecret;
+                foundUser.secret.push(newSecret);
+                //foundUser.secret = submittedSecret;
                 foundUser.save(() => {
                     res.redirect('/secrets');
                 });
