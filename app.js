@@ -45,7 +45,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Connecting to mongoDB
-mongoose.connect('mongodb://localhost:27017/userDB', {
+mongoose.connect('mongodb+srv://lakshjadhwani:test123@todo-4gxsr.mongodb.net/userDB', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
