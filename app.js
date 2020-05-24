@@ -64,7 +64,7 @@ const Secret = new mongoose.model("Secret", secretSchema);
 
 // Creating mongoose schema
 const userSchema = new mongoose.Schema({
-    email: String,
+    email: { type: String, unique:true, sparse:true},
     password: String,
     googleId: String,
     facebookId: String,
